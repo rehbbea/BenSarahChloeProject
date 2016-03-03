@@ -61,28 +61,21 @@
 	<h4>My Bids</h4>
 	<h4>My Auctions</h4></div>
 	<div id=section>
-	<h3>Sign in</h3> 
+	<h3>Search</h3> 
       <div>
          <?php
             $msg = '';
             
-            if (isset($_POST['login']) && !empty($_POST['username']) 
-               && !empty($_POST['password'])) {
-			$user = $_POST['username'];
-			$password = $_POST['password'];
-	        $lookup = "SELECT * FROM t_users WHERE email = '" . $user . "' AND p_word = '" . $password . "'";
+            if (isset($_POST['search'])  && !empty($_POST['search'])) {
+			$search = $_POST['search'];
+			/*Later add that the listing must be live*/
+	        $lookup = "SELECT * FROM t_auctions WHERE description like '%" . $search . "%';";
 	        if(!mysqli_query($connection, $lookup) | mysqli_query($connection, $lookup)->num_rows < 1) {
-				unset($_SESSION["username"]);
-				unset($_SESSION["password"]);
-				$msg = 'Incorrect username or password';
+				echo "Sorry, there is nothing under that description";
 			}
 			else
 			{
-				$_SESSION['valid'] = true;
-                  $_SESSION['timeout'] = time();
-                  $_SESSION['username'] = $user;
-                  
-                     header('Refresh: 0; URL = loggedon.php');
+				echo "Found something!";
 			}
 
             }
@@ -91,23 +84,20 @@
 
       <div class = "container">
      <table> 
-         <form class = "form-signin" role = "form" 
+         <form class = "form-search" role = "form" 
             action = "<?php echo htmlspecialchars($_SERVER['PHP_SELF']); 
             ?>" method = "post">
-            <h4 class = "form-signin-heading"><?php echo $msg; ?></h4>
-			<td><p><label>Email:</label></p></td>
+            <h4 class = "form-search-heading"><?php echo $msg; ?></h4>
+			<td><p><label>Search:</label></p></td>
             <td><p><input type = "text" class = "form-control" 
-               name = "username" placeholder = "email address" 
-               required autofocus></td></p></tr>
-			<td><p><label>Password:</label></p></td>
-            <td><p><input type = "password" class = "form-control"
-               name = "password" placeholder = "password" required></td>
-           </p> </tr>
+               name = "search" placeholder = "What are you looking for?" 
+             ></td></p></tr>
+
 			<td align="center"><p><button class = "btn btn-lg btn-primary btn-block" type = "submit" 
-               name = "login">Login</button></p></td></tr>
+               name = "searchbtn">Go!</button></p></td></tr>
 			   </table>
          </form>
-       <p>Don't have an account? sign up here</p>  
+
 		 
       </div> 
 	</div>
