@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 27, 2016 at 01:42 PM
+-- Generation Time: Mar 03, 2016 at 08:31 PM
 -- Server version: 5.6.17
 -- PHP Version: 5.5.12
 
@@ -167,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `t_users` (
   UNIQUE KEY `d_name` (`d_name`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `email_2` (`email`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf32 AUTO_INCREMENT=5 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf32 AUTO_INCREMENT=28 ;
 
 --
 -- Dumping data for table `t_users`
@@ -177,7 +177,13 @@ INSERT INTO `t_users` (`user_id`, `first_name`, `last_name`, `p_word`, `d_name`,
 (1, 'Dave', 'Benson-Philips', 'password', 'GetYourOwnBack', 'gyob@gyob.co.uk'),
 (2, 'Ed', 'The_Duck', 'password', 'EdTheDuck', 'Ed@broomcupboard.com'),
 (3, 'Thomas', 'Cromwell', 'password', 'puritan4eva', 'tommo@roundheads.com'),
-(4, 'Shirley', 'Temple', 'password', 'Lollipop', 's.temple@hotmail.com');
+(4, 'Shirley', 'Temple', 'password', 'Lollipop', 's.temple@hotmail.com'),
+(5, 'sarah', 'kerry', 'sarahiscool', 'fidel_saztro', 'sarah@sarahkerry.co.uk'),
+(17, 'Kyle', 'Rees', 'blahblah', 'kyle_rees', 'reesespieces@hotmail.com'),
+(18, 'Elenor', 'Ripley', 'passwor', 'ih8aliens', 'ih8aliens@hotmail.com'),
+(19, 'Bishop', 'Droid', 'password', 'Bishopwasrobbed', 'top_droids@gmail.com'),
+(20, 'Bennett', 'Halverson', 'blahblah', 'bennett', 'bennett@halverson.com'),
+(27, 'Hewwoo', 'Panda', 'd3395867d05cc4c27f01', 'panda', 'hello@panda.com');
 
 -- --------------------------------------------------------
 
@@ -198,8 +204,8 @@ CREATE TABLE IF NOT EXISTS `t_watchlist` (
 -- Constraints for table `t_auctions`
 --
 ALTER TABLE `t_auctions`
-  ADD CONSTRAINT `cat_ddl` FOREIGN KEY (`cat`) REFERENCES `t_cat` (`cat_id`),
-  ADD CONSTRAINT `auctionsellers` FOREIGN KEY (`seller_id`) REFERENCES `t_sellers` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `auctionsellers` FOREIGN KEY (`seller_id`) REFERENCES `t_sellers` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `cat_ddl` FOREIGN KEY (`cat`) REFERENCES `t_cat` (`cat_id`);
 
 --
 -- Constraints for table `t_bids`
