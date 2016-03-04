@@ -1,0 +1,44 @@
+	<style>
+
+		h2 {color:#13420A; 
+			font-family: verdana}
+		h3 {font-family: verdana;
+			color:19570D;}
+		h4 {font-family: verdana;
+			color:19570D}
+		p {color:19570D;
+			font-family: verdana;}
+
+		#header {
+			background-color:#DAF5D5;
+			font-family: verdana
+			color:#DEF5DA;
+			text-align:center;
+			padding:5px;
+			}
+		#nav {
+			line-height:30px;
+			background-color:#9BD490;
+			font-family: verdana
+			color:19570D;
+			height:350px;
+			width:100px;
+			float:left;
+			padding:5px; 
+			}
+		#section {
+			color:19570D;
+			font-family: verdana
+			width:450px;
+			float:left;
+			padding:10px; 
+			}
+		#footer {
+			background-color:9BD490;
+			font-family: verdana
+			color:black;
+			clear:both;
+			text-align:center;
+			padding:5px; 
+			}
+	</style>
