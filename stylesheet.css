@@ -1,11 +1,11 @@
 	<style>
 
 		h2 {color:#13420A; 
-			font-family: verdana}
+			font-family: verdana;}
 		h3 {font-family: verdana;
 			color:19570D;}
 		h4 {font-family: verdana;
-			color:19570D}
+			color:19570D;}
 		p {color:19570D;
 			font-family: verdana;}
 
@@ -28,8 +28,8 @@
 			}
 		#section {
 			color:19570D;
-			font-family: verdana
-			width:450px;
+			font-family: verdana;
+			width = 100%
 			float:left;
 			padding:10px; 
 			}
@@ -41,4 +41,16 @@
 			text-align:center;
 			padding:5px; 
 			}
+			<style>
+		table, th, td {
+		border: 1px solid black;
+		border-collapse: collapse;
+			}
+		th, td {
+		padding: 15px;
+		}
+		table tr:nth-child(even) {
+		background-color: #eee;
+		}
+</style>
 	</style>
