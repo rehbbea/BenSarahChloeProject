@@ -19,7 +19,7 @@
 	<h3> Browse items</h3> 
          <?php
             $msg = ''; 
-		$defaultq="SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, c.cat_desc, a.description, h.currentval 
+		$defaultq="SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
 		FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON 			a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
 			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
 		date_expires>NOW() ORDER BY(date_expires);";
@@ -61,7 +61,7 @@
 			/*If the search button is used, then the query sourcing the display table is updated*/
 			if (isset($_POST['searchbtn'])  && !empty($_POST['search'])) {
 			$search = $_POST['search'];
-	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, c.cat_desc, a.description, h.currentval 
+	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
 			FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
 			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
 			date_expires>NOW() AND (lower(description) like lower('%" . $search . "%') OR lower(item_name) like lower('%" . $search . "%')) ORDER BY(date_expires);";
@@ -109,11 +109,20 @@
 		
 			echo "<tr>";
 			foreach($colnames as $column => $value){
+				if($column != 'auction_id')
+				{
 				echo "<td>";
-				
-				echo $row[$column];
-				echo "</td>";
+				if($column == 'd_name')
+				{
+					echo "<a href=viewitem.php?item=" . $row['auction_id'] .">" . $row['d_name'] ."</a> ";
 				}
+				else
+				{
+				    echo $row[$column];
+				}
+				echo "</td>";
+			}
+			}
 			echo "</tr>";
 		}
 		
