@@ -23,7 +23,7 @@
 			$item_id = $_GET['item'];
 			$query = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, c.cat_desc, a.description, h.currentval 
 			FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
-			WHERE auction_id = " . $item_id ;
+			WHERE auction_id = " . $item_id ." AND c.cat_id = a.cat;";
 			$result = mysqli_query($connection,$query)
 		        or die('No such item.' . mysql_error());
 			$row = mysqli_fetch_array($result);
