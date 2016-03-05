@@ -31,7 +31,7 @@
 					
 					$checkunique =  "SELECT email FROM t_users WHERE email = '${user['email']}';";
 					$checkdisplay =  "SELECT d_name FROM t_users WHERE d_name = '${user['d_name']}';";
-					$connection = mysqli_connect("localhost", "root", "PAmG7Up6wy2ZcEAu", "auctions");
+					include 'database.php'; 
 					$email = filter_var($user['email'], FILTER_SANITIZE_EMAIL);
 					if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 							echo "<h4>That email address is not valid</h4>";
@@ -72,7 +72,7 @@
 			}
       function saveToDatabase($user)
 		{
-		$connection = mysqli_connect("localhost", "root", "PAmG7Up6wy2ZcEAu", "auctions");
+		include 'database.php'; 
 		 /*introduce password hashing here*/
  		$query = "INSERT INTO t_users(first_name, last_name, p_word, d_name, email) ".
 				"VALUES ('${user['firstName']}', '${user['lastName']}', SHA('${user['password']}'),".
@@ -97,7 +97,7 @@
 			}
 			else{
 			?>
-         <form class = "form-signin" role = "form" 
+         <form class = "form-signup" role = "form" 
             action = "<?php echo htmlspecialchars($_SERVER['PHP_SELF']); 
             ?>" method = "post">
             <h4 class = "form-signin-heading"><?php echo $msg; ?></h4>
