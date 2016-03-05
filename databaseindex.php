@@ -1,4 +1,4 @@
-<?php include 'database.php'; ?>
+<?php require 'database.php'; ?>
 <?php
    session_start();
 ?>
@@ -7,50 +7,7 @@
   <head>
     <meta charset="utf-8"/>
     <title>Login</title>
-	<style>
-
-		h2 {color:#13420A; 
-			font-family: verdana}
-		h3 {font-family: verdana;
-			color:19570D;}
-		h4 {font-family: verdana;
-			color:19570D}
-		p {color:19570D;
-			font-family: verdana;}
-
-		#header {
-			background-color:#DAF5D5;
-			font-family: verdana
-			color:#DEF5DA;
-			text-align:center;
-			padding:5px;
-			}
-		#nav {
-			line-height:30px;
-			background-color:#9BD490;
-			font-family: verdana
-			color:19570D;
-			height:350px;
-			width:100px;
-			float:left;
-			padding:5px; 
-			}
-		#section {
-			color:19570D;
-			font-family: verdana
-			width:450px;
-			float:left;
-			padding:10px; 
-			}
-		#footer {
-			background-color:9BD490;
-			font-family: verdana
-			color:black;
-			clear:both;
-			text-align:center;
-			padding:5px; 
-			}
-	</style>
+	<link href="../../stylesheet.css" rel="stylesheet" type="text/css">
   </head>
   <body>
 	<div id=header><h2> Buy my tat</h2><br></div>
@@ -82,7 +39,7 @@
                   $_SESSION['timeout'] = time();
                   $_SESSION['username'] = $user;
                   
-                     header('Refresh: 0; URL = loggedon.php');
+                     header('Refresh: 0; URL = browse.php');
 			}
 
             }
@@ -90,22 +47,22 @@
       </div> <!-- /container -->
 
       <div class = "container">
-     <table> 
+
          <form class = "form-signin" role = "form" 
             action = "<?php echo htmlspecialchars($_SERVER['PHP_SELF']); 
             ?>" method = "post">
             <h4 class = "form-signin-heading"><?php echo $msg; ?></h4>
-			<td><p><label>Email:</label></p></td>
-            <td><p><input type = "text" class = "form-control" 
+			<p><label>Email:</label></p>
+            <p><input type = "text" class = "form-control" 
                name = "username" placeholder = "email address" 
-               required autofocus></td></p></tr>
-			<td><p><label>Password:</label></p></td>
-            <td><p><input type = "password" class = "form-control"
-               name = "password" placeholder = "password" required></td>
-           </p> </tr>
+               required autofocus></p>
+			<p><label>Password:</label></p>
+            <p><input type = "password" class = "form-control"
+               name = "password" placeholder = "password" required>
+           </p> 
 			<td align="center"><p><button class = "btn btn-lg btn-primary btn-block" type = "submit" 
-               name = "login">Login</button></p></td></tr>
-			   </table>
+               name = "login">Login</button></p>
+			   
          </form>
        <p>Don't have an account? sign up here</p>  
 		 
