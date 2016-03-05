@@ -1,26 +1,19 @@
-<?php include 'database.php'; ?>
+
 <?php
-   session_start();
-?>
-<html>
-<head>
- <title>Hello World</title>
-</head>
-<body>
-<?php
-$email = $_SESSION['username'];
+	if (isset($_SESSION['username'])){
+	$email = $_SESSION['username'];
       $query = "SELECT first_name FROM t_users WHERE email = '" . $email . "'";
       $result = mysqli_query($connection,$query)
         or die('Error making select users query' . mysql_error());
 	$row = mysqli_fetch_array($result);
 	$name = $row['first_name'];
 	
-echo "Welcome " . $name;
-?>
-<br>
-<br>
-<a href = "logout.php" tite = "Logout">Logout</a>
-
-
-</body>
-</html>
+	echo "Welcome " . $name ;
+	echo "<a href=logout.php> Logout</a>";
+	}
+	else 
+	{
+	echo "Welcome guest, you are not logged in ";
+	echo "<a href=databaseindex.php> Sign in</a> or <a href=createNewUser2.php> Sign up</a> ";
+	}
+	?>
