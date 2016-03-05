@@ -9,26 +9,21 @@
   <head>
     <meta charset="utf-8"/>
     <title>What's for sale?</title>
+	<!-- Include stylesheet-->
 	<link href="../../stylesheet.css" rel="stylesheet" type="text/css">
   </head>
-  <body>
-	<div id=header><h2> Buy my tat</h2><br></div>
-	<div id=nav> 
-	<h4>Sell something</h4>
-	<h4>Browse auctions</h4>
-	<h4>Watchlist</h4>
-	<h4>My Bids</h4>
-	<h4>My Auctions</h4></div>
-	<div id=section>
-	<p align="right"><?php include 'loggedon.php'; ?></p>
+<body>
+<!-- template.php contains the header and nav bar-->
+<?php include 'template.php';?>
+
 	<h3> Browse items</h3> 
          <?php
             $msg = ''; 
-		$defaultq="SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, c.cat_desc, a.description, a.highest_bid 
-			FROM (t_auctions as a JOIN t_sellers as s) JOIN t_users as u, t_cat as c
-			WHERE a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
+		$defaultq="SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, c.cat_desc, a.description, h.currentval 
+		FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON 			a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
+			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
 		date_expires>NOW() ORDER BY(date_expires);";
-		$currentq=$defaultq
+		$currentq=$defaultq;
 		?>	
       <div>
 		<div class = "container"> 
@@ -39,18 +34,37 @@
 			<p><label>Search by keyword:</label><input type = "text" class = "form-control" 
                name = "search" placeholder = "What are you looking for?" 
              ><button class = "btn btn-lg btn-primary btn-block" type = "submit" 
-               name = "searchbtn">Go!</button></p>
+               name = "searchbtn">Go!</button>
+				 or choose a category: <select name="category" onChange="chooseCat(this)">
+				<option value="1" selected="selected">Clothing</option>
+				<option value="2">Leisure</option>
+				<option value="3">Electronics</option>
+				<option value="4">Collectables</option>
+				<option value="5">Jewellery</option>	
+				<option value="4">Home and Garden</option>
+				<option value="5">Miscellaneous/Other</option>					
+				</select><br /></p>
 
          </form>
 		 </div>	  
+		<script>
+			chooseCat(obj){
 
+			$.post("catupdate.php",chooseCat(obj.options[obj.selectedIndex].value){
+
+			alert(obj.options[obj.selectedIndex].value);
+			});
+		}
+
+ </script>
          <?php
+			/*If the search button is used, then the query sourcing the display table is updated*/
 			if (isset($_POST['searchbtn'])  && !empty($_POST['search'])) {
 			$search = $_POST['search'];
-	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, c.cat_desc, a.description, a.highest_bid 
-			FROM (t_auctions as a JOIN t_sellers as s) JOIN t_users as u, t_cat as c
-			WHERE a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
-		date_expires>NOW() AND (lower(description) like lower('%" . $search . "%') OR lower(item_name) like lower('%" . $search . "%')) ORDER BY(date_expires);";
+	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, c.cat_desc, a.description, h.currentval 
+			FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
+			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
+			date_expires>NOW() AND (lower(description) like lower('%" . $search . "%') OR lower(item_name) like lower('%" . $search . "%')) ORDER BY(date_expires);";
 	        if(!mysqli_query($connection, $lookup) | mysqli_query($connection, $lookup)->num_rows < 1) {
 				echo "Sorry, there is nothing under that description";
 			}
@@ -59,8 +73,9 @@
 				$currentq=$lookup;
 				
 			}
-
             }
+			
+
             
       function drawTableContents($query)
 		{
@@ -77,7 +92,7 @@
 		"item_name" => "Name",
 		"cat_desc" => "Category",
 		"description" => "Description",
-		"highest_bid" => "Highest bid");		
+		"currentval" => "Highest bid");		
 		
 		while($row = mysqli_fetch_array($result,MYSQLI_ASSOC))
 		{
