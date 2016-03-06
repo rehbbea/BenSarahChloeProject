@@ -57,7 +57,7 @@ and it is too late now to work on it anymore tonight*/
 			$issellerq = "SELECT user_id FROM t_sellers WHERE user_id='" . $seller_id. "';";			/*check the user is a seller*/
 			/*If the user isn't listed as a seller, add to the sellers table*/
 			if(!mysqli_query($connection, $issellerq) | mysqli_query($connection, $issellerq)->num_rows < 1) {
-			$addseller = "INSERT INTO t_sellers (user_id, seller_rep, seller_rep_count, no_sales) VALUES (". $seller_id .", 0,0,0);";
+			$addseller = "INSERT INTO t_sellers (user_id) VALUES (". $seller_id .");";
 			$result = mysqli_query($connection, $addseller)
 				or die('Error adding seller' . mysql_error());			
 			}
