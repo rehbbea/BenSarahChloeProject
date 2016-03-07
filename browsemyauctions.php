@@ -16,7 +16,7 @@
 <!-- template.php contains the header and nav bar-->
 <?php include 'template.php';?>
 
-	<h3> Your Watchlist</h3> 
+	<h3> Your Auctions</h3> 
          <?php
 		 
 		 if (isset($_SESSION['username'])){
@@ -39,7 +39,7 @@
 		$defaultq="SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
 		FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON 			a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
 			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
-		date_expires>NOW() AND a.auction_id IN (SELECT auction_id FROM t_auctions WHERE seller_id = " . $userid . ") ORDER BY(date_expires);";
+		date_expires> NOW() - INTERVAL 7 DAY AND a.auction_id IN (SELECT auction_id FROM t_auctions WHERE seller_id = " . $userid . ") ORDER BY(date_expires);";
 		$currentq=$defaultq;
 		?>	
       <div>
@@ -81,7 +81,7 @@
 	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
 			FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
 			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
-			date_expires>NOW() AND a.auction_id IN (SELECT auction_id FROM t_auctions WHERE seller_id = " . $userid . ") AND (lower(description) like lower('%" . $search . "%') OR lower(item_name) like lower('%" . $search . "%')) ORDER BY(date_expires);";
+			date_expires>NOW() - INTERVAL 7 DAY AND a.auction_id IN (SELECT auction_id FROM t_auctions WHERE seller_id = " . $userid . ") AND (lower(description) like lower('%" . $search . "%') OR lower(item_name) like lower('%" . $search . "%')) ORDER BY(date_expires);";
 	        if(!mysqli_query($connection, $lookup) | mysqli_query($connection, $lookup)->num_rows < 1) {
 				echo "Sorry, there is nothing under that description";
 			}

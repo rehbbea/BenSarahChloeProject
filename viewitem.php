@@ -60,12 +60,16 @@
 	
 		}
 	
-			$query = "SELECT u.d_name, a.date_listed, a.date_expires as expire_date, timediff(date_expires, NOW()) as hours_to_go, a.reserve_price, a.item_name, c.cat_desc, a.description, h.currentval 
+			$query = "SELECT u.d_name, u.user_id, a.date_listed, s.seller_rep, a.date_expires as expire_date, date_expires-NOW() as hours_to_expire, timediff(date_expires, NOW()) as hours_to_go, a.reserve_price, a.item_name, c.cat_desc, a.description, h.currentval 
 			FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
 			WHERE auction_id = " . $item_id ." AND c.cat_id = a.cat;";
 			$result = mysqli_query($connection,$query)
 		        or die('No such item.' . mysql_error());
 			$row = mysqli_fetch_array($result);
+			$seller = $row['d_name'];
+			$sellerrep = $row['seller_rep'];
+			$hoursexpire = $row['hours_to_expire'];
+			$sellerid = $row['user_id'];
 			$itemname = $row['item_name'];
 			$catdesc = $row['cat_desc'];
 			$desc = $row['description'];
@@ -76,8 +80,58 @@
 			$step = '0.01';
 			$image = 'http://i.imgur.com/S2N3B.png';
 			
-			echo "<h3>" . $itemname . "</h3><br>";
+			echo "<h3>" . $itemname . "</h3><br>";			
+			
+			 if($hoursexpire < 0)
+		     {
+				 $winnerquery = "SELECT buyer_id FROM t_bids WHERE auctionid = " . $item_id . " AND amount in (SELECT max(amount) FROM t_bids WHERE auctionid = " . $item_id . ")";
+				 $winnerresult = mysqli_query($connection, $winnerquery);
+				 $winrow = mysqli_fetch_array($winnerresult);
+				 $winnerid = $winrow['buyer_id'];
+				 if($userid != $sellerid && $userid != $winnerid)
+				 {
+					 echo "Sorry, this auction has expired.";
+					 header('Refresh: 5; URL = databaseindex.php');
+				     exit;
+				 }
+				 else if($userid == $sellerid)
+                 {
+					 $detailsquery = "SELECT d_name, email FROM t_users WHERE user_id = " . $winnerid;
+					 $detailsresult = mysqli_query($connection, $detailsquery);
+					 $detailsrow = mysqli_fetch_array($detailsresult);
+					 $winnername = $detailsrow['d_name'];
+					 $winneremail = $detailsrow['email'];
+					 echo "Congratulations your item has sold to " . $winnername . " For $" . $currentval . "<br>";
+					 echo "Please get in touch with them at " . $winneremail . "to arrange payment and delivery.";
+					 echo "<br>You can rate your buyer below.<br>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=1\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=2\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=3\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=4\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=5\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+					 	
+					 exit;
+				 }
+				 else if($userid == $winnerid)
+				 {
+					 $detailsquery = "SELECT d_name, email FROM t_users WHERE user_id = " . $sellerid;
+					 $detailsresult = mysqli_query($connection, $detailsquery);
+					 $detailsrow = mysqli_fetch_array($detailsresult);
+					 $sellername = $detailsrow['d_name'];
+					 $selleremail = $detailsrow['email'];
+					 echo "Congratulations you have won the bid for $" . $currentval . "<br>";
+					 echo "Please get in touch with " . $sellername ." at " . $selleremail . "to arrange payment and delivery.";
+					 echo "<br>You can rate your seller below.<br>";
+					 echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=1\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=2\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=3\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=4\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=5\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
 
+					 exit;
+				 }
+			 }
+			
 			$watchquery = "SELECT auctionid FROM t_watchlist WHERE auctionid = " . $item_id . " AND user_id = " . $userid;
 			
 			$userbidquery = "SELECT max(amount) as userbid FROM t_bids WHERE auctionid = " . $item_id . " AND buyer_id = " . $userid;
@@ -85,6 +139,7 @@
 				 or die('Error making select bids' . mysql_error());
 
 			echo "Category:" . $catdesc . "<br>";
+		    echo "Being sold by: " . $seller . ". A reputation " . $sellerrep . "/5 seller.<br>";
 			echo "Ends in: " . $hours . " (At ". $expires .")<br>";
 			echo "Highest Bid: $" . $currentval  . "<br>";
 			if($userbidresult->num_rows > 0)
