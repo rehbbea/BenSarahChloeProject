@@ -59,14 +59,15 @@
 	
 		}
 	
-			$query = "SELECT u.d_name, u.user_id, a.date_listed, s.seller_rep, a.date_expires as expire_date, date_expires-NOW() as hours_to_expire, timediff(date_expires, NOW()) as hours_to_go, a.reserve_price, a.item_name, c.cat_desc, a.description, h.currentval, h.d_name as buyer
+			$query = "SELECT u.d_name as seller_name, u.user_id, a.date_listed, s.seller_rep, a.date_expires as expire_date, date_expires-NOW() as hours_to_expire, timediff(date_expires, NOW()) as hours_to_go, a.reserve_price, a.item_name, c.cat_desc, a.description, h.currentval, h.d_name as buyer
 			FROM (SELECT auctionid, max(`amount`) as currentval, d_name FROM `t_bids` as b, t_users as us WHERE b.buyer_id=us.user_id GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
-			WHERE auction_id = " . $item_id ." AND c.cat_id = a.cat;";
+			WHERE auction_id = " . $item_id ." AND c.cat_id = a.cat AND a.seller_id=s.user_id AND s.user_id=u.user_id;";
 
 			$result = mysqli_query($connection,$query)
 		        or die('No such item.' . mysql_error());
 			$row = mysqli_fetch_array($result);
-			$seller = $row['d_name'];
+			$seller = $row['seller_name'];
+			echo $seller;
 			$sellerrep = $row['seller_rep'];
 			$hoursexpire = $row['hours_to_expire'];
 			$sellerid = $row['user_id'];
@@ -112,12 +113,12 @@
 					 $winneremail = $detailsrow['email'];
 					 echo "Congratulations your item has sold to " . $winnername . " For $" . $currentval . "<br>";
 					 echo "Please get in touch with them at " . $winneremail . "to arrange payment and delivery.";
-					 echo "<br>You can rate your buyer below.<br><br>";
-				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "&star=1\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
-				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "&star=2\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
-				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "&star=3\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
-				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "&star=4\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
-				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "&star=5\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+					 echo "<br>You can rate your buyer below.<br>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=1\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=2\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=3\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=4\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=5\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
 					 	
 					 exit;
 				 }
@@ -129,30 +130,13 @@
 					 $sellername = $detailsrow['d_name'];
 					 $selleremail = $detailsrow['email'];
 					 echo "Congratulations you have won the bid for $" . $currentval . "<br>";
-					 echo "Please get in touch with " . $sellername ." at " . $selleremail . "to arrange payment and delivery.<br>";
-					 echo "Or use the button below to send payment through paypal.<br>";
-
-					 echo "
-					 <form action=\"https://www.paypal.com/cgi-bin/webscr\" method=\"post\" target=\"_top\">
-<input type=\"hidden\" name=\"cmd\" value=\"_xclick\">
-<input type=\"hidden\" name=\"business\" value=" . $selleremail . "\">
-<input type=\"hidden\" name=\"lc\" value=\"US\">
-<input type=\"hidden\" name=\"item_name\" value=" . $itemname . "\">
-<input type=\"hidden\" name=\"amount\" value=\"" . $currentval ."\">
-<input type=\"hidden\" name=\"currency_code\" value=\"GBP\">
-<input type=\"hidden\" name=\"button_subtype\" value=\"services\">
-<input type=\"hidden\" name=\"no_note\" value=\"0\">
-<input type=\"hidden\" name=\"bn\" value=\"PP-BuyNowBF:btn_buynowCC_LG.gif:NonHostedGuest\">
-<input type=\"image\" src=\"https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif\" border=\"0\" name=\"submit\" alt=\"PayPal - The safer, easier way to pay online!\">
-<img alt=\"\" border=\"0\" src=\"https://www.paypalobjects.com/en_US/i/scr/pixel.gif\" width=\"1\" height=\"1\">
-</form>";		
-			
-					 echo "<br>You can rate your seller below.<br><br>";
-					 echo "<a href=\"rateseller.php?item=" . $item_id . "&star=1\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
-				     echo "<a href=\"rateseller.php?item=" . $item_id . "&star=2\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
-				     echo "<a href=\"rateseller.php?item=" . $item_id . "&star=3\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
-				     echo "<a href=\"rateseller.php?item=" . $item_id . "&star=4\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
-				     echo "<a href=\"rateseller.php?item=" . $item_id . "&star=5\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+					 echo "Please get in touch with " . $sellername ." at " . $selleremail . "to arrange payment and delivery.";
+					 echo "<br>You can rate your seller below.<br>";
+					 echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=1\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=2\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=3\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=4\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
+				     echo "<a href=\"ratebuyer.php?item=" . $item_id . "?star=5\" ><img src=\"http://i.imgur.com/p7omcv4.png\" onmouseover=\"this.src='http://i.imgur.com/TWPqI6x.png'\" onmouseout=\"this.src='http://i.imgur.com/p7omcv4.png'\"  /></a>";
 					 exit;
 				 }
 			 }
