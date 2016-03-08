@@ -157,6 +157,7 @@
 				}
 			}
 			/*echo "Reserve Price: $" . $reserve  . "<br><br>"; typically you would not reveal the reserve price*/
+			if ($userid != $sellerid){/* Only show buyers the watchlist and bid options - cannot bid on own item*/
 			echo "
          <form class = \"form-newBid\" role = \"form\" 
             method = \"post\">
@@ -166,7 +167,7 @@
 			<align=\"center\"><p><td><button class = \"btn btn-lg btn-primary btn-block\" type = \"submit\" 
                name = \"addbid\">Bid</button></p></td></tr>
          </form>";
- 
+			
 			
 			if(mysqli_query($connection, $watchquery)->num_rows < 1)
 			{
@@ -176,6 +177,8 @@
 			{
 				echo "<a href=removefromwatchlist.php?item=" . $item_id ."><td>Remove from Watchlist</td></tr></table></a> ";
 			}
+			}
+			else {echo "</table>";}
 			echo "<img src=\"" . $image . "\">";
 			
 		}
