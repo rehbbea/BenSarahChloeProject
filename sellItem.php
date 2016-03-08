@@ -33,27 +33,29 @@ and it is too late now to work on it anymore tonight*/
 			$description =  $_POST['description'];
 			$category =  $_POST['category'];
 			$start_price =  $_POST['start_price'];
-			$date_expires =  $_POST['date_expires'];
+			$reserve_price =  $_POST['reserve_price'];
+			$date_length =  $_POST['date_expires'];
+			$set_expiry = (time() + 24*60*60);
+			$date_expires = date("Y-m-d H:i:s", $set_expiry);			
+			echo $date_expires;
 			if (empty($start_price)){
 			$start_price = 0;
 			}
 			if (empty($reserve_price)){
 			$reserve_price = 0;
 			}
-
-			if (empty($category)||$category=0){
+			if (empty($category)||$category==0){
 			$category = 7;
-			
+			echo $category;
 			}
 			if (empty($description)){
 			$description= " ";
 			}						
-			$sellerq = "SELECT user_id FROM t_users WHERE email='" . $user . "';";				/*get the user_id from the session*/
+			$sellerq = "SELECT user_id FROM t_users WHERE email='" . $user . "';";				/*get the user_id from the session*/		
 			$result = mysqli_query($connection,$sellerq)
 				or die('Error making select users query' . mysql_error());
 			$row = mysqli_fetch_array($result);
 			$seller_id = $row['user_id'];
-
 			$issellerq = "SELECT user_id FROM t_sellers WHERE user_id='" . $seller_id. "';";			/*check the user is a seller*/
 			/*If the user isn't listed as a seller, add to the sellers table*/
 			if(!mysqli_query($connection, $issellerq) | mysqli_query($connection, $issellerq)->num_rows < 1) {
@@ -62,24 +64,22 @@ and it is too late now to work on it anymore tonight*/
 				or die('Error adding seller' . mysql_error());			
 			}
 	        if(empty($seller_id)) {
-
 				$msg = 'Goodness me, something went wrong - please log in again';
 							   echo "We don't know who you are";
-			}
+				}
 			else
-			{			
-				$itemadd = "INSERT INTO t_auctions (seller_id, item_name, description, cat, start_price, date_expires, reserve_price) VALUES ('". $seller_id ."', '". $item_name ."', '". $description ."', '". $category ."', ". $start_price .", '". $date_expires ."' ,". $reserve_price .");";
+			{				
+				$itemadd = "INSERT INTO t_auctions (seller_id, item_name, description, cat, start_price, date_expires, reserve_price) VALUES ('". $seller_id ."', '". $item_name ."', '". $description ."', ". $category .", ". $start_price .", '". $date_expires ."' ,". $reserve_price .");";
 				if (!mysqli_query($connection, $itemadd)){
 				$msg = "We couldn't add your item, something went wrong";
 							   echo "We couldn't add your item, something went wrong";
 				}
 				else{
 				$msg = 'Item added, whippee';
-							   echo "Item added, whippee- go to view the item";
+							   
 				}
 			
 			}
-
             }
 			        mysqli_close($connection);
          ?>
@@ -104,8 +104,18 @@ and it is too late now to work on it anymore tonight*/
 				</select><br />
 			<p><input type='textarea' name='description' size='40' placeholder = "Item description"  rows="10" cols="30"></p>
 			<p><input type='text' name='start_price' size='40' placeholder = "Start price" ></p>	
-			<p><input type='text' name='reserve' size='40' placeholder = "Reserve Price"></p>  		
-			<p><input type='date(format,timestamp)' name='date_expires' placeholder = "When do you want the auction to finish?" required></p>
+			<p><input type='text' name='reserve_price' size='40' placeholder = "Reserve Price"></p>  
+<!--			<p><input type='text' name='date_expires' size='40' placeholder = "Auction finish time"></p> -->
+			   <select name="date_expires">	
+			   <option value="0">Please select length of auction</option>
+				<option value="1">1 hour</option>
+				<option value="24">1 day</option>
+				<option value="72">3 days</option>
+				<option value="168">1 week</option>
+				<option value="336">2 weeks</option>	
+				<option value="672">4 weeks</option>
+				<option value="1008">6 weeks</option>					
+				</select><br />			
        
 			<p align="center"><p><button class = "btn btn-lg btn-primary btn-block" type = "submit" 
                name = "additem">Add Item</button></p>
