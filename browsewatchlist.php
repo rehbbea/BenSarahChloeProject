@@ -33,6 +33,7 @@
 				exit;
 			}
 		 
+		include 'searchbar.php';
 		 
 		 
             $msg = ''; 
@@ -43,37 +44,7 @@
 		$currentq=$defaultq;
 		?>	
       <div>
-		<div class = "container"> 
-         <form class = "form-search" role = "form" 
-            action = "<?php echo htmlspecialchars($_SERVER['PHP_SELF']); 
-            ?>" method = "post">
-            <h4 class = "form-search-heading"></h4>
-			<p><label>Search by keyword:</label><input type = "text" class = "form-control" 
-               name = "search" placeholder = "What are you looking for?" 
-             ><button class = "btn btn-lg btn-primary btn-block" type = "submit" 
-               name = "searchbtn">Go!</button>
-				 or choose a category: <select name="category" onChange="chooseCat(this)">
-				<option value="1" selected="selected">Clothing</option>
-				<option value="2">Leisure</option>
-				<option value="3">Electronics</option>
-				<option value="4">Collectables</option>
-				<option value="5">Jewellery</option>	
-				<option value="4">Home and Garden</option>
-				<option value="5">Miscellaneous/Other</option>					
-				</select><br /></p>
 
-         </form>
-		 </div>	  
-		<script>
-			chooseCat(obj){
-
-			$.post("catupdate.php",chooseCat(obj.options[obj.selectedIndex].value){
-
-			alert(obj.options[obj.selectedIndex].value);
-			});
-		}
-
- </script>
          <?php
 			/*If the search button is used, then the query sourcing the display table is updated*/
 			if (isset($_POST['searchbtn'])  && !empty($_POST['search'])) {
@@ -91,8 +62,18 @@
 				
 			}
             }
+			else if (isset($_POST['searchbtn']) &&!($_POST['category']==0)){
+			$cat = $_POST['category'];
+	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
+			FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
+			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
+			date_expires>NOW() AND a.auction_id IN (SELECT auctionid FROM t_watchlist WHERE user_id = " . $userid . ") AND a.cat =" . $cat . "  ORDER BY(date_expires);";
+				        if(!mysqli_query($connection, $lookup) | mysqli_query($connection, $lookup)->num_rows < 1) {
+				echo "Sorry, there is nothing under that description";
+			}
+							$currentq=$lookup;
+			}			
 			
-
             
       function drawTableContents($query)
 		{
@@ -132,6 +113,20 @@
 				if($column == 'd_name')
 				{
 					echo "<a href=viewitem.php?item=" . $row['auction_id'] .">" . $row['d_name'] ."</a> ";
+				}
+				else if($column == 'date_expires')
+				{
+					if 	($row['date_expires']<date('m/d/Y h:i:s a', time())){
+						echo "Expired";
+					}
+					else {
+					echo $row['date_expires'];
+					}
+				
+				}
+				else if($column == 'currentval')
+				{
+					echo "£ " . number_format($row['currentval'],2);
 				}
 				else
 				{

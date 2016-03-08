@@ -74,7 +74,6 @@
 		FROM (SELECT auctionid, max(`amount`) as currentval FROM (SELECT auctionid, amount from t_bids UNION SELECT auction_id, start_price from t_auctions) as b GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND a.cat =" . $cat . " AND date_expires>NOW() ORDER BY(date_expires);";
 	        if(!mysqli_query($connection, $lookup) | mysqli_query($connection, $lookup)->num_rows < 1) {
 				echo "Sorry, there is nothing under that description";
-				echo $lookup;
 			}
 							$currentq=$lookup;
 			}

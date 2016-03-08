@@ -10,4 +10,3 @@
 	</div>
 	<div id=section>
 	<p align="right"><?php include 'loggedon.php'; ?></p>
-	

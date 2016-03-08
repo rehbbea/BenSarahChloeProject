@@ -1,56 +1,68 @@
 	<style>
 
 		h2 {color:#13420A; 
-			font-family: verdana;}
-		h3 {font-family: verdana;
-			color:19570D;}
-		h4 {font-family: verdana;
-			color:19570D;}
-		p {color:19570D;
-			font-family: verdana;}
-
+			font-family: tahoma;}
+		h3 {font-family: tahoma;
+			color:#19570D;}
+		h4 {font-family: tahoma;
+			color:#19570D;}
+		p {color:#19570D;
+			font-family: tahoma;}
+		.clearfix {
+			overflow: auto;
+			}
 		#header {
 			background-color:#DAF5D5;
-			font-family: verdana
-			color:#DEF5DA;
+			font-family: tahoma;
 			text-align:center;
 			padding:5px;
 			}
 		#nav {
 			line-height:30px;
 			background-color:#9BD490;
-			font-family: verdana
+			font-family: tahoma;
 			color:19570D;
-			height:2800px;
 			width:100px;
 			float:left;
-			padding:5px; 
+			padding:5px;
+			overflow: auto;
 			}
 		#section {
 			color:19570D;
-			font-family: verdana;
+			font-family: tahoma;
 			width = 100%
 			float:left;
-			padding:10px; 
+			padding:10px;
+			margin-left: 110px;
 			}
 		#footer {
 			background-color:9BD490;
-			font-family: verdana
+			font-family: tahoma;
 			color:black;
 			clear:both;
 			text-align:center;
 			padding:5px; 
 			}
-			<style>
+
 		table, th, td {
-		border: 1px solid black;
 		border-collapse: collapse;
 			}
 		th, td {
 		padding: 15px;
 		}
-		table tr:nth-child(even) {
-		background-color: #eee;
+		tr:nth-child(even) {
+		background-color: #DAF5D5;
 		}
-</style>
+		tr:hover {background-color: #9BD490}
+		
+		table#t01 {    
+		background-color: #ffffff;
+		border-style: none;
+		border-color: #ffffff;
+		}
+		table#t01 tr:nth-child(even) {
+		background-color: #ffffff;
+		}
+		table#t01 tr:hover {background-color: #ffffff}
+
 	</style>
