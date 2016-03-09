@@ -19,69 +19,73 @@
 	<h3> Browse items</h3> 
 
       <div>
-		<div class = "container"> 
-         <form class = "form-search" role = "form" 
-            action = "<?php echo htmlspecialchars($_SERVER['PHP_SELF']); 
-            ?>" method = "post">
-            <h4 class = "form-search-heading"></h4>
-			<p>Choose a category: <select name="category">
-				<option value="0">Category</option>
-				<option value="1">Clothing</option>
-				<option value="2">Leisure</option>
-				<option value="3">Electronics</option>
-				<option value="4">Collectables</option>
-				<option value="5">Jewellery</option>	
-				<option value="6">Home and Garden</option>
-				<option value="7">Miscellaneous/Other</option>					
-				</select><label> or search by keyword:</label></select>
-				<input type = "text" class = "form-control" 
-               name = "search" placeholder = "What are you looking for?" >
-			 <button class = "btn btn-lg btn-primary btn-block" type = "submit" 
-               name = "searchbtn">Go</button>
-				 </p>				
-    </div>
+		<?php include 'sort.php'; include 'searchbar.php';  ?>	
 
 	
          </form>
 		 </div>	  
 
          <?php
-		 include 'database.php'; 
+		 include 'database.php';
+		/* if the filter button is used, then change defaults to the new */
+			if (isset($_POST['sortbtn'])) {
+				$sort_by = $_POST['sort_by'];
+				if ($sort_by==1){
+				$defaults='date_expires';
+				$sortdir = ' ASC';						
+				}
+				else if ($sort_by==2){
+				$defaults='date_listed';
+				$sortdir = ' DESC';
+				}
+				else if ($sort_by==3){
+				$defaults='currentval';
+				$sortdir = ' ASC';				
+				}
+				else if ($sort_by==4){
+				$defaults='currentval';
+				$sortdir = ' DESC';
+				}
+				else{
+				$defaults='date_expires';
+				$sortdir = ' ASC';
+				}
+			
+			}
+			else{
+			$defaults='date_expires';
+			$sortdir = ' ASC';
+			}
+			
 			$defaultq="SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
 			FROM (SELECT auctionid, max(`amount`) as currentval FROM (SELECT auctionid, amount from t_bids UNION SELECT auction_id, start_price from t_auctions) as b GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
-			date_expires>NOW() ORDER BY(date_expires);";
+			date_expires>NOW() ORDER BY(" . $defaults . ")" .$sortdir;
 			$currentq=$defaultq;
-		
+
 			/*If the search button is used, then the query sourcing the display table is updated*/
 			if (isset($_POST['searchbtn'])  && !empty($_POST['search'])) {
 			$search = $_POST['search'];
 	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
 			FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
 			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
-			date_expires>NOW() AND (lower(description) like lower('%" . $search . "%') OR lower(item_name) like lower('%" . $search . "%')) ORDER BY (date_expires);";
+			date_expires>NOW() AND (lower(description) like lower('%" . $search . "%') OR lower(item_name) like lower('%" . $search . "%')) ORDER BY (" . $defaults . ");";
 	        if(!mysqli_query($connection, $lookup) | mysqli_query($connection, $lookup)->num_rows < 1) {
 				echo "Sorry, there is nothing under that description";
 			}
 			else
 			{
-				$currentq=$lookup;
-				
+				$currentq=$lookup;				
 			}
             }
 			else if (isset($_POST['searchbtn']) &&!($_POST['category']==0)){
 			$cat = $_POST['category'];
 	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
-		FROM (SELECT auctionid, max(`amount`) as currentval FROM (SELECT auctionid, amount from t_bids UNION SELECT auction_id, start_price from t_auctions) as b GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND a.cat =" . $cat . " AND date_expires>NOW() ORDER BY(date_expires);";
+		FROM (SELECT auctionid, max(`amount`) as currentval FROM (SELECT auctionid, amount from t_bids UNION SELECT auction_id, start_price from t_auctions) as b GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND a.cat =" . $cat . " AND date_expires>NOW() ORDER BY(" . $defaults . ");";
 	        if(!mysqli_query($connection, $lookup) | mysqli_query($connection, $lookup)->num_rows < 1) {
 				echo "Sorry, there is nothing under that description";
 			}
 							$currentq=$lookup;
-			}
-		
-		
-		
-
-			
+			}	
             
       function drawTableContents($query){
 		include 'database.php'; 
