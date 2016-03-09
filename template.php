@@ -1,12 +1,12 @@
 
-
-	<div id=header><h2> Buy my tat</h2><br></div>
-	<div id=nav> 
-	<a href=sellitem.php><h4>Sell something</h4></a>
-	<a href=browse.php><h4>Browse auctions</h4></a>
-	<a href=browsewatchlist.php><h4>Watchlist</h4></a>
-	<a href=browsebids.php><h4>My Bids</h4></a>
-	<a href=browsemyauctions.php><h4>My Auctions</h4></a>
-	</div>
-	<div id=section>
+	<div id=header>
+	
+	<ul id="navlist">
+		<li id="home"><a href="home.php"></a></li>
+		<li id="search"><a href="browse.php"></a></li>
+		<li id="sell"><a href="sellitem.php"></a></li>
+		<li id="bid"><a href="browsebids.php"></a></li>
+		<li id="watch"><a href="browsewatchlist.php"></a></li>
+		<li id="title"></a></li>
+	</ul> </div>
 	<p align="right"><?php include 'loggedon.php'; ?></p>

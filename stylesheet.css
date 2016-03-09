@@ -16,6 +16,7 @@
 			font-family: tahoma;
 			text-align:center;
 			padding:5px;
+			height: 150px;
 			}
 		#nav {
 			line-height:30px;
@@ -26,11 +27,11 @@
 			float:left;
 			padding:5px;
 			overflow: auto;
+			position: fixed; 
 			}
 		#section {
 			color:19570D;
 			font-family: tahoma;
-			width = 100%
 			float:left;
 			padding:10px;
 			margin-left: 110px;
@@ -49,6 +50,7 @@
 			}
 		th, td {
 		padding: 15px;
+		font-family: tahoma;
 		}
 		tr:nth-child(even) {
 		background-color: #DAF5D5;
@@ -64,5 +66,85 @@
 		background-color: #ffffff;
 		}
 		table#t01 tr:hover {background-color: #ffffff}
+
+
+	
+		#navlist {
+			position: relative;
+		}
+
+		#navlist li {
+			margin: 0;
+			padding: 0;
+			list-style: none;
+			position: absolute;
+			top: 0;
+		}
+
+		#navlist li, #navlist a {
+			height: 97px;
+			display: block;
+			/*background: url('img/nav_sprite.gif') no-repeat;*/
+		}
+
+	#home {
+		left: 0px;
+		height: 97px;
+		width: 96px;
+		background: url('img/nav_sprite.gif') -509px 0;
+	}
+	
+	#home a:hover {
+	height: 120px;
+		background:  url('img/nav_sprite.gif') -509px -93.5px;
+	}
+
+	#search {
+		left: 100px;
+		height: 100px;
+		width: 96px;
+		background: url('img/nav_sprite.gif') -210px 0;
+	}
+	#search a:hover {
+		height: 120px;
+		background:  url('img/nav_sprite.gif') -210px -93.5px;
+	}
+	#sell {
+		left: 200px;
+		height: 89px;
+		width: 96px;
+		background: url('img/nav_sprite.gif') 0px 0;
+	}
+	#sell a:hover {
+	height: 120px;
+		background:  url('img/nav_sprite.gif') 0px  -93.5px;
+	}	
+	#bid {
+		left: 300px;
+		height: 100px;
+		width: 96px;
+		background: url('img/nav_sprite.gif') -102px 0;
+	}
+	#bid a:hover {
+	height: 120px;
+		background:  url('img/nav_sprite.gif') -102px  -93.5px;
+	}	
+	#watch {
+		left: 400px;
+		height: 100px;
+		width: 96px;
+		background: url('img/nav_sprite.gif') -312px 0;
+	}
+	#watch a:hover {
+	height: 120px;
+		background:  url('img/nav_sprite.gif') -312px  -93.5px;
+	}
+	#title{
+		left: 600px; /*if time make responsive*/
+		height: 100px;
+		width: 250px;
+		background: url('img/nav_sprite.gif') -600px 0px;
+	}
+
 
 	</style>
