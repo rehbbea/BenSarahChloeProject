@@ -11,6 +11,7 @@
     <title>View an item</title>
 	<!-- Include stylesheet-->
 	<link href="../../stylesheet.css" rel="stylesheet" type="text/css">
+	<?php include 'pageviews.php'; ?>
   </head>
 <body>
 <!-- template.php contains the header and nav bar-->
