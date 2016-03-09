@@ -2,7 +2,6 @@
 
 <?php
    session_start();
-
    if (isset($_GET['item']) and isset($_GET['star'])){
 			$item_id = $_GET['item'];
 			$star = $_GET['star'];
@@ -27,8 +26,11 @@
 				 $updatequery = "UPDATE t_buyers SET buyer_rep = buyer_rep / no_buys";
 				 mysqli_query($connection, $updatequery);
 				 
+				 $updatequery = "UPDATE t_auctions SET s_feedback = 1 WHERE  auction_id = " . $item_id ;
+				 mysqli_query($connection, $updatequery);
 				 echo "<h2>You give them a " . $star . " star rating.</h2>";
-				 $newurl = "viewitem.php?item=" . $item_id;
+				 /*$newurl = "viewitem.php?item=" . $item_id;*/
+				$newurl = "home.php";
 				 header('Refresh: 5; URL = ' . $newurl);	
                  exit;				 
 			}

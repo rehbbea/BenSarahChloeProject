@@ -16,7 +16,7 @@
 			font-family: tahoma;
 			text-align:center;
 			padding:5px;
-			height: 150px;
+			height: 140px;
 			}
 		#nav {
 			line-height:30px;
@@ -51,6 +51,7 @@
 		th, td {
 		padding: 15px;
 		font-family: tahoma;
+		line-height:15px;
 		}
 		tr:nth-child(even) {
 		background-color: #DAF5D5;
@@ -58,6 +59,8 @@
 		tr:hover {background-color: #9BD490}
 		
 		table#t01 {    
+		padding: 1px;		
+		line-height:12px;
 		background-color: #ffffff;
 		border-style: none;
 		border-color: #ffffff;

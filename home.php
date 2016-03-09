@@ -35,8 +35,8 @@
 		 
 		 
             $msg = ''; 
-		$defaultq="SELECT h.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval, a.reserve_price, a.sent, a.s_feedback, a.s_paid
-		FROM (SELECT auctionid, max(`amount`) as currentval, d_name FROM `t_bids` as b, t_users as us WHERE b.buyer_id=us.user_id GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON 			a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
+		$defaultq="SELECT h.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval, a.reserve_price, a.sent, a.s_feedback, a.s_paid, a.auction_id as item_id
+		FROM (SELECT b.auctionid, amount as currentval, us.d_name FROM (SELECT auctionid, max(amount) as top from t_bids group by auctionid) as m, `t_bids` as b, t_users as us WHERE b.buyer_id=us.user_id AND m.top=b.amount AND m.auctionid=b.auctionid) as h RIGHT JOIN t_auctions as a ON	a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
 			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
 		date_expires<NOW() AND a.auction_id IN (SELECT auction_id FROM t_auctions WHERE seller_id = " . $userid . ") ORDER BY(date_expires);";
 		$currentq=$defaultq;
@@ -45,7 +45,7 @@
 		{
 		include 'database.php'; 
         $result = mysqli_query($connection, $query)
-		or die("Hmm, that didn't seem to work" . mysql_error());
+		or die($query. "Hmm, that didn't seem to work" . mysql_error());
 		
 		$first = true;
 		$total_owe=0;
@@ -61,7 +61,7 @@
 		"reserve_price" => "Success",
 		"sent"=>  "Sent item?",
 		"s_feedback"=>  "Feedback for seller",	
-		"s_paid"=>  "Payment for listing?",		
+		"s_paid"=>  "Payment for listing",		
 		);				
 		echo "<table>";
 		while($row = mysqli_fetch_array($result,MYSQLI_ASSOC))
@@ -104,11 +104,11 @@
 				else if($column == 'sent')
 				{
 					if (!($row['reserve_price']>$row['currentval'])){
-						if ($row['sent']==False){
-							echo "Please send item";
+						if (empty($row['sent'])){
+							echo "<a href=\"sent.php?item=" . $row['item_id'] ."\">Record item sent </a>";
 						}
-					else if ($row['sent']==True){
-						echo "Item sent";
+					else if ($row['sent']>0){
+						echo "Item is sent";
 						}
 					 }
 				}								
@@ -116,7 +116,13 @@
 				{
 					if (!($row['reserve_price']>$row['currentval'])){
 						if  (empty($row['s_feedback'])){
-							echo "Give feedback";
+					echo "<a href=\"ratebuyer.php?item=" . $row['item_id'] . "&star=1\" ><img src=\"img/star.gif\" onmouseover=\"this.src='img/star2.gif'\" onmouseout=\"this.src='img/star.gif'\"  /></a>";
+ 				     echo "<a href=\"ratebuyer.php?item=" . $row['item_id'] . "&star=2\" ><img src=\"img/star.gif\" onmouseover=\"this.src='img/star2.gif'\" onmouseout=\"this.src='img/star.gif'\"  /></a>";
+ 				     echo "<a href=\"ratebuyer.php?item=" . $row['item_id'] . "&star=3\" ><img src=\"img/star.gif\" onmouseover=\"this.src='img/star2.gif'\" onmouseout=\"this.src='img/star.gif'\"  /></a>";
+ 				     echo "<a href=\"ratebuyer.php?item=" . $row['item_id'] . "&star=4\" ><img src=\"img/star.gif\" onmouseover=\"this.src='img/star2.gif'\" onmouseout=\"this.src='img/star.gif'\"  /></a>";
+ 				     echo "<a href=\"ratebuyer.php?item=" . $row['item_id'] . "&star=5\" ><img src=\"img/star.gif\" onmouseover=\"this.src='img/star2.gif'\" onmouseout=\"this.src='img/star.gif'\"  /></a>";
+					 	
+					 exit;
 						}
 					else if($row['s_feedback']==True) {
 						echo "Feedback given";
@@ -145,16 +151,28 @@
 				echo "</td>";
 			}
 			}
-			echo "</tr>";
-			
-			
-			
+			echo "</tr>";			
 		}
 		
 		echo "</table>";
 		if ($total_owe>0){
-			 echo "You owe £ " . number_format($total_owe,2) . " altogether";
-			 
+			$corpemail="sarah@sarahkerry.co.uk";
+			$itemname="Buy my tat fees";
+			 echo "<p>You owe £ " . number_format($total_owe,2) . " altogether </p>";
+			  echo "
+ 					 <form action=\"https://www.paypal.com/cgi-bin/webscr\" method=\"post\" target=\"_top\">
+					<input type=\"hidden\" name=\"cmd\" value=\"_xclick\">
+					<input type=\"hidden\" name=\"business\" value=" . $corpemail . "\">
+					<input type=\"hidden\" name=\"lc\" value=\"US\">
+					<input type=\"hidden\" name=\"item_name\" value=" . $itemname . "\">
+					<input type=\"hidden\" name=\"amount\" value=\"" . $total_owe ."\">
+					<input type=\"hidden\" name=\"currency_code\" value=\"GBP\">
+					<input type=\"hidden\" name=\"button_subtype\" value=\"services\">
+					<input type=\"hidden\" name=\"no_note\" value=\"0\">
+					<input type=\"hidden\" name=\"bn\" value=\"PP-BuyNowBF:btn_buynowCC_LG.gif:NonHostedGuest\">
+					<input type=\"image\" src=\"https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif\" border=\"0\" name=\"submit\" alt=\"PayPal - The safer, easier way to pay online!\">
+					<img alt=\"\" border=\"0\" src=\"https://www.paypalobjects.com/en_US/i/scr/pixel.gif\" width=\"1\" height=\"1\">
+					</form>";		
 			 
 			}
 		// Associative array
