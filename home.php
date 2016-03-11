@@ -8,7 +8,7 @@
 <html>
   <head>
     <meta charset="utf-8"/>
-    <title>What's for sale?</title>
+    <title>My home</title>
 	<!-- Include stylesheet-->
 	<link href="../../stylesheet.css" rel="stylesheet" type="text/css">
   </head>
@@ -62,7 +62,11 @@
 		"sent"=>  "Sent item?",
 		"s_feedback"=>  "Feedback for seller",	
 		"s_paid"=>  "Payment for listing",		
-		);				
+		);	
+				if ($result->num_rows<1){
+		echo "<p>You have no finished auctions</p>"; 
+		}
+		else{
 		echo "<table>";
 		while($row = mysqli_fetch_array($result,MYSQLI_ASSOC))
 		{
@@ -172,7 +176,8 @@
 					<input type=\"hidden\" name=\"bn\" value=\"PP-BuyNowBF:btn_buynowCC_LG.gif:NonHostedGuest\">
 					<input type=\"image\" src=\"https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif\" border=\"0\" name=\"submit\" alt=\"PayPal - The safer, easier way to pay online!\">
 					<img alt=\"\" border=\"0\" src=\"https://www.paypalobjects.com/en_US/i/scr/pixel.gif\" width=\"1\" height=\"1\">
-					</form>";		
+					</form>";	
+						/*Would be good if this could trigger an event to say the user has paid*/
 			 
 			}
 		// Associative array
@@ -180,13 +185,239 @@
 		mysqli_free_result($result);		 
         mysqli_close($connection);
       }	
-   
+	}
 			drawTableContents($currentq);
 		
 		
          ?>
       </div> <!-- /container -->
 
+	<h3>My Messages</h3> 
+<?php	
+	 if (isset($_SESSION['username'])){
+		        $email = $_SESSION['username'];
+				 $idquery = "SELECT user_id FROM t_users WHERE email = '" . $email . "'";
+				 $idresult = mysqli_query($connection,$idquery)
+				 or die('Error making select users query' . mysql_error());
+			    $idrow = mysqli_fetch_array($idresult);
+				$userid = $idrow['user_id'];
+				}
+			else
+			{
+				header('Refresh: 1; URL = databaseindex.php');
+				exit;
+			}
+		 
+		 
+		 
+            $msg = ''; 
+			$show=0;
+		$messageq="SELECT  message_id, auction_id, msgtype, message, is_read FROM t_emails WHERE user_id = " . $userid. " AND is_read= ". $show;
+
+      function drawMessageContents($query)
+		{
+		include 'database.php'; 
+        $result = mysqli_query($connection, $query)
+		or die($query. "Hmm, that didn't seem to work" . mysql_error());
+		if ($result->num_rows<1){
+		echo "<p>You have no new messages</p>"; 
+		}
+		else{
+		$first = true;
+		
+		$colnames = array(
+		"msgtype" => "Message type",
+		"message" => "Message",
+		"is_read"=> "Read?"
+		);				
+		echo "<table>";
+		while($row = mysqli_fetch_array($result,MYSQLI_ASSOC))
+		{
+			
+			if($first){
+				echo "<tr>";
+				foreach($colnames as $column => $value){
+					
+				echo "<th>$value</th>";
+				}
+				echo "</tr>";
+				$first = false;
+			}
+			
+		
+			echo "<tr>";
+			foreach($colnames as $column => $value){
+			echo "<td>";
+				if($column == 'is_read')
+				{
+
+					if ($row['is_read']==0)
+					{
+						echo "<a href=\"markasread.php?msg=" . $row['message_id'] ."\"> <p> Message Read</p> </a>";
+						}
+					else {
+						echo "Message Read";
+						}
+
+				}
+				else if ($column == 'msgtype'){
+					if ($row['msgtype']==1){
+					echo "Auction ending soon";
+					}
+					else if ($row['msgtype']==2){
+					echo "Outbid";
+					}
+					else if ($row['msgtype']==3){
+					echo "Won item";
+					}
+					else if ($row['msgtype']==4){
+					echo "Item sold";
+					}
+					else if ($row['msgtype']==5){
+					echo "No Sale";
+					}
+				}
+				else {
+				    echo $row[$column];
+				}
+				echo "</td>";
+			}
+		
+			echo "</tr>";			
+		}
+		
+		echo "</table>";
+		// Associative array
+		// Free result set
+		mysqli_free_result($result);		 
+        mysqli_close($connection);
+      }	
+   }
+			drawMessageContents($messageq);
+		
+		
+         ?>
+      </div> <!-- /container -->	  
+	<h3> Your Current Auctions</h3> 
+         <?php
+		 
+		 if (isset($_SESSION['username'])){
+		        $email = $_SESSION['username'];
+				 $idquery = "SELECT user_id FROM t_users WHERE email = '" . $email . "'";
+				 $idresult = mysqli_query($connection,$idquery)
+				 or die('Error making select users query' . mysql_error());
+			    $idrow = mysqli_fetch_array($idresult);
+				$userid = $idrow['user_id'];
+				}
+			else
+			{
+				header('Refresh: 1; URL = databaseindex.php');
+				exit;
+			}
+		 
+		 
+		 
+            $msg = ''; 
+		$defaultq="SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
+		FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON 			a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
+			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
+		date_expires>NOW() AND a.auction_id IN (SELECT auction_id FROM t_auctions WHERE seller_id = " . $userid . ") ORDER BY(date_expires);";
+		$auctionq=$defaultq;
+/*		?>	
+      <div>
+<?php include 'searchbar.php';?>
+		 </div>	  
+         <?php
+			
+			if (isset($_POST['searchbtn'])  && !empty($_POST['search'])) {
+			$search = $_POST['search'];
+	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
+			FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
+			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
+			date_expires>NOW() AND a.auction_id IN (SELECT auction_id FROM t_auctions WHERE seller_id = " . $userid . ") AND (lower(description) like lower('%" . $search . "%') OR lower(item_name) like lower('%" . $search . "%')) ORDER BY(date_expires);";
+	        if(!mysqli_query($connection, $lookup) | mysqli_query($connection, $lookup)->num_rows < 1) {
+				echo "Sorry, there is nothing under that description";
+			}
+			else if (isset($_POST['category'])){
+			$cat = $_POST['category'];
+	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
+			FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
+			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
+			date_expires>NOW() AND a.auction_id IN (SELECT auction_id FROM t_auctions WHERE seller_id = " . $userid . ") AND (cat =" . $scat . ")) ORDER BY(date_expires);";			
+			}
+			{
+				$auctionq=$lookup;
+				
+			}
+            }
+			*/
+            
+      function drawAuctions($query)
+		{
+		include 'database.php'; 
+        $result = mysqli_query($connection, $query)
+		or die("Hmm, that didn't seem to work" . mysql_error());
+		
+		if ($result->num_rows==0){
+		echo "<p>You have no current auctions</p>";
+		}
+		else{
+		$first = true;
+		
+		$colnames = array(
+		"d_name" =>"Display name", 
+		"date_listed" => "Date listed",
+		"date_expires" => "End of auction",
+		"item_name" => "Name",
+		"cat_desc" => "Category",
+		"description" => "Description",
+		"currentval" => "Highest bid");		
+		
+		while($row = mysqli_fetch_array($result,MYSQLI_ASSOC))
+		{
+			
+			if($first){
+				echo "<tr>";
+				foreach($colnames as $column => $value){
+					
+				echo "<th>$value</th>";
+				}
+				echo "</tr>";
+				$first = false;
+			}
+		
+			echo "<tr>";
+			foreach($colnames as $column => $value){
+				if($column != 'auction_id')
+				{
+				echo "<td>";
+				if($column == 'd_name')
+				{
+					echo "<a href=viewitem.php?item=" . $row['auction_id'] .">" . $row['d_name'] ."</a> ";
+				}
+				else
+				{
+				    echo $row[$column];
+				}
+				echo "</td>";
+			}
+			}
+			echo "</tr>";
+		}
+		}
+		// Associative array
+		// Free result set
+		mysqli_free_result($result);		 
+        mysqli_close($connection);
+		
+      }	
+   
+		echo "<table>";
+			drawAuctions($auctionq);
+		echo "</table>";
+         ?>
+      </div> <!-- /container -->
+	  
 	</div>
 	<div id=footer> Created by us bblah blah blah</div>
   </body>

@@ -36,6 +36,35 @@
 			padding:10px;
 			margin-left: 110px;
 			}
+		input[type=button], input[type=submit], input[type=reset] {
+		background-color: #19570D;
+		border: none;
+		color: white;
+		padding: 16px 32px;
+		text-decoration: none;
+		margin: 4px 2px;
+		cursor: pointer;
+	}
+	.button {
+    background-color: #19570D; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+	input [type=text]{
+		background-color: white; /* Green */
+		border: none;
+		color:#4CAF50 ;
+		padding: 15px 32px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+	}
 		#footer {
 			background-color:9BD490;
 			font-family: tahoma;
@@ -148,6 +177,8 @@
 		width: 250px;
 		background: url('img/nav_sprite.gif') -600px 0px;
 	}
+	
+
 
 
 	</style>

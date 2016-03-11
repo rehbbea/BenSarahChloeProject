@@ -57,7 +57,8 @@
 			$sortdir = ' ASC';
 			}
 			
-			$defaultq="SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
+			
+			$defaultq="SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval, a.start_price
 			FROM (SELECT auctionid, max(`amount`) as currentval FROM (SELECT auctionid, amount from t_bids UNION SELECT auction_id, start_price from t_auctions) as b GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
 			date_expires>NOW() ORDER BY(" . $defaults . ")" .$sortdir;
 			$currentq=$defaultq;
@@ -65,10 +66,10 @@
 			/*If the search button is used, then the query sourcing the display table is updated*/
 			if (isset($_POST['searchbtn'])  && !empty($_POST['search'])) {
 			$search = $_POST['search'];
-	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
-			FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
+	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval, a.start_price 
+			FROM (SELECT auctionid, max(`amount`) as currentval FROM (SELECT auctionid, amount from t_bids UNION SELECT auction_id, start_price from t_auctions) as b GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
 			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
-			date_expires>NOW() AND (lower(description) like lower('%" . $search . "%') OR lower(item_name) like lower('%" . $search . "%')) ORDER BY (" . $defaults . ");";
+			date_expires>NOW() AND (lower(description) like lower('%" . $search . "%') OR lower(item_name) like lower('%" . $search . "%')) ORDER BY (" . $defaults. ")" .$sortdir;
 	        if(!mysqli_query($connection, $lookup) | mysqli_query($connection, $lookup)->num_rows < 1) {
 				echo "Sorry, there is nothing under that description";
 			}
@@ -79,8 +80,8 @@
             }
 			else if (isset($_POST['searchbtn']) &&!($_POST['category']==0)){
 			$cat = $_POST['category'];
-	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
-		FROM (SELECT auctionid, max(`amount`) as currentval FROM (SELECT auctionid, amount from t_bids UNION SELECT auction_id, start_price from t_auctions) as b GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND a.cat =" . $cat . " AND date_expires>NOW() ORDER BY(" . $defaults . ");";
+	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval, a.start_price 
+		FROM (SELECT auctionid, max(`amount`) as currentval FROM (SELECT auctionid, amount from t_bids UNION SELECT auction_id, start_price from t_auctions) as b GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND a.cat =" . $cat . " AND date_expires>NOW() ORDER BY(" . $defaults . ")" .$sortdir;
 	        if(!mysqli_query($connection, $lookup) | mysqli_query($connection, $lookup)->num_rows < 1) {
 				echo "Sorry, there is nothing under that description";
 			}
@@ -127,7 +128,12 @@
 				}
 				else if($column == 'currentval')
 				{
+					if ($row['currentval']<0.01){
+					echo "Start price £ " . number_format($row['start_price'],2);
+					}
+					else{
 					echo "£ " . number_format($row['currentval'],2);
+					}
 				}
 				else
 				{

@@ -60,7 +60,7 @@
 	
 		}
 	
-			$query = "SELECT u.d_name as seller_name, u.user_id, a.date_listed, s.seller_rep, a.date_expires as expire_date, date_expires-NOW() as hours_to_expire, timediff(date_expires, NOW()) as hours_to_go, a.reserve_price, a.item_name, c.cat_desc, a.description, h.currentval, h.d_name as buyer, a.s_feedback, a.w_feedback, a.sent
+			$query = "SELECT u.d_name as seller_name, u.user_id, a.date_listed, s.seller_rep, a.date_expires as expire_date, date_expires-NOW() as hours_to_expire, timediff(date_expires, NOW()) as hours_to_go, a.reserve_price, a.item_name, c.cat_desc, a.description, h.currentval, h.d_name as buyer, a.s_feedback, a.w_feedback, a.sent, a.img
 			FROM (SELECT b.auctionid, amount as currentval, us.d_name FROM (SELECT auctionid, max(amount) as top from t_bids group by auctionid) as m, `t_bids` as b, t_users as us WHERE b.buyer_id=us.user_id AND m.top=b.amount AND m.auctionid=b.auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
 			WHERE auction_id = " . $item_id ." AND c.cat_id = a.cat AND a.seller_id=s.user_id AND s.user_id=u.user_id;";
 
@@ -81,7 +81,8 @@
 			$winnersofar = $row['buyer'];
 			$sent = $row['sent']; 
 			$s_feedback = $row['s_feedback'];
-			$w_feedback = $row['w_feedback']; 			
+			$w_feedback = $row['w_feedback']; 	
+			$image = $row['img'];
 			$step = '0.01';
 			if (empty($currentval)||($currentval)==0){
 			$currentval=0;
@@ -91,9 +92,11 @@
 			$winnersofar="No one has bid yet";
 			}
 			$currprice = number_format($currentval,2);
+			if (empty($image)){
 			$image = 'http://i.imgur.com/S2N3B.png';
-			echo "<table id='t01'> <tr><td>	Category:" . $catdesc . "</td></tr>";
-			echo "<tr> <td></html><h3>" . $itemname . "</h3><html> </td>";
+			}
+			echo "<table id='t01'> <tr><td>	Category:" . $catdesc . "</td><td></td><td ROWSPAN=3 ><img src=\"" . $image . "\" style=\"height:200px;\"></td><td></td></tr>";
+			echo "<tr> <td></html><h3>" . $itemname . "</h3><html> </td></tr>";
 			echo "<td>" . $desc . "</td></tr></table>";	
 			if($hoursexpire < 0)
 		     {
@@ -192,7 +195,7 @@
             <h4 class = \"form-newBid-heading\"></h4>
             <p> <td><input type = \"number\" size=\"8\" name = \"bid_amount\", min= \"" . ($currentval + $step) . "\", step=\"0.01\" 
                required></td>
-			<align=\"center\"><p><td><button class = \"btn btn-lg btn-primary btn-block\" type = \"submit\" 
+			<align=\"center\"><p><td><button class = \"button\" type = \"submit\" 
                name = \"addbid\">Bid</button></p></td></tr>
          </form>";
 			
@@ -207,7 +210,7 @@
 			}
 			}
 			else {echo "</table>";}
-			echo "<img src=\"" . $image . "\">";
+			
 			
 		}
 	    else 

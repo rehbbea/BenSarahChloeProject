@@ -9,4 +9,4 @@
 		<li id="watch"><a href="browsewatchlist.php"></a></li>
 		<li id="title"></a></li>
 	</ul> </div>
-	<p align="right"><?php include 'loggedon.php'; ?></p>
+	<p align="right"><?php include 'loggedon.php'; include 'update_messages.php'; ?></p>

@@ -32,12 +32,12 @@ and it is too late now to work on it anymore tonight*/
 			$item_name =  $_POST['item_name'];
 			$description =  $_POST['description'];
 			$category =  $_POST['category'];
+			$img = $_POST['img'];
 			$start_price =  $_POST['start_price'];
 			$reserve_price =  $_POST['reserve_price'];
 			$date_length =  $_POST['date_expires'];
 			$set_expiry = (time() + 24*60*60);
 			$date_expires = date("Y-m-d H:i:s", $set_expiry);			
-			echo $date_expires;
 			if (empty($start_price)){
 			$start_price = 0;
 			}
@@ -69,21 +69,24 @@ and it is too late now to work on it anymore tonight*/
 				}
 			else
 			{				
-				$itemadd = "INSERT INTO t_auctions (seller_id, item_name, description, cat, start_price, date_expires, reserve_price) VALUES ('". $seller_id ."', '". $item_name ."', '". $description ."', ". $category .", ". $start_price .", '". $date_expires ."' ,". $reserve_price .");";
+				$itemadd = "INSERT INTO t_auctions (seller_id, item_name, description, img, cat, start_price, date_expires, reserve_price) VALUES ('". $seller_id ."', '". $item_name ."', '". $description ."', '". $img ."', ". $category .", ". $start_price .", '". $date_expires ."' ,". $reserve_price .");";
 				if (!mysqli_query($connection, $itemadd)){
 				$msg = "We couldn't add your item, something went wrong";
-							   echo "We couldn't add your item, something went wrong";
+							   echo $itemadd."We couldn't add your item, something went wrong";
 				}
 				else{
-				$msg = 'Item added, whippee';
+				header('Refresh: 1; URL = browsemyauctions.php');
+				exit;
 							   
 				}
 			
 			}
             }
-			        mysqli_close($connection);
-         ?>
-		 
+			        mysqli_close($connection);?>
+         <?php
+		 if (isset($_SESSION['username'])){ 
+		 ?>
+	
      <div class = "container">
 
          <form class = "form-newItem" role = "form" 
@@ -103,6 +106,8 @@ and it is too late now to work on it anymore tonight*/
 				<option value="5">Miscellaneous/Other</option>					
 				</select><br />
 			<p><input type='textarea' name='description' size='40' placeholder = "Item description"  rows="10" cols="30"></p>
+			 <p><input type = "text" size='100' name = "img" placeholder = "URL for img to show item" 
+               ></td></p>
 			<p><input type='text' name='start_price' size='40' placeholder = "Start price" ></p>	
 			<p><input type='text' name='reserve_price' size='40' placeholder = "Reserve Price"></p>  
 <!--			<p><input type='text' name='date_expires' size='40' placeholder = "Auction finish time"></p> -->
@@ -117,12 +122,18 @@ and it is too late now to work on it anymore tonight*/
 				<option value="1008">6 weeks</option>					
 				</select><br />			
        
-			<p align="center"><p><button class = "btn btn-lg btn-primary btn-block" type = "submit" 
+			<p align="center"><p><button class="button" type = "submit" 
                name = "additem">Add Item</button></p>
 			   
 			   
-         </form>
- 
+         </form>";
+		<?php 
+
+		}
+		else{
+		echo "<p> Please sign in to sell an item </p>";
+		}
+		?>
 
 		 
       </div> 
