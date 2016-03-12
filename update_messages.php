@@ -33,4 +33,53 @@ FROM (SELECT (timediff(`date_expires`, NOW())/(60*60)) as timetogo, auction_id, 
  mysqli_query($connection, $endingsoonwatch);
  mysqli_query($connection, $outbid);	 
  
+ $sendemailquery = "SELECT message_id, msgtype, auction_id, message, is_read, email FROM t_emails LEFT JOIN t_users ON (t_emails.user_id = t_users.user_id) WHERE is_sent = 0 LIMIT 1";
+$emailresult = mysqli_query($connection,$sendemailquery);
+if(!empty($emailresult))
+{
+    $emailrow = mysqli_fetch_array($emailresult);
+    if(!empty($emailrow))
+    {
+        $type = $emailrow['msgtype'];
+        $emailbody = $emailrow['message'];
+        $to_address = $emailrow['email'];
+        $message_id = $emailrow['message_id'];
+        if($type == 5)
+        {
+             $subject = "Item not sold.";
+        }
+        if($type == 4)
+        {
+            $subject = "";
+        }
+        if($type == 3)
+        {
+            $subject = "";
+        }
+        if($type == 2)
+        {
+            $subject = "";
+        }
+        if($type == 1)
+        {
+            $subject = "Auction ending soon.";
+        }
+        $emailfile = fopen("email.txt", "w") or die("Unable to open file!");
+        $subjline = "Subject: " . $subject . "\n";
+        fwrite($emailfile, $subjline);
+        $fromline = "From: Watchlist@buymytat.com\n\n";
+        fwrite($emailfile, $fromline);
+        $textline = $emailbody;
+        fwrite($emailfile, $textline);
+        fclose($emailfile);
+
+        $command = "sendmail " . $to_address . " < email.txt";
+        shell_exec($command);
+
+       $emailsent = "UPDATE t_emails SET is_sent = 1 WHERE message_id = " . $message_id;
+       mysqli_query($connection, $emailsent);
+    }
+}
+
+ 
 ?>
