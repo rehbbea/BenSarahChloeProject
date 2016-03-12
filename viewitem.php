@@ -220,6 +220,6 @@
 	    }
 		?>	
 	</div>
-	<div id=footer> Created by us bblah blah blah</div>
+
   </body>
 </html>
