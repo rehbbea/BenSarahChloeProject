@@ -58,10 +58,10 @@
                name = "login">Login</button></p>
 			   
          </form>
-       <p>Don't have an account? sign up here</p>  
+       <p>Don't have an account? <a href ="createNewUser2.php">Sign up here</p></a>  
 		 
       </div> 
 	</div>
-	<div id=footer> Created by us bblah blah blah</div>
+	
   </body>
 </html>
