@@ -126,7 +126,7 @@
  				     echo "<a href=\"ratebuyer.php?item=" . $row['item_id'] . "&star=4\" ><img src=\"img/star.gif\" onmouseover=\"this.src='img/star2.gif'\" onmouseout=\"this.src='img/star.gif'\"  /></a>";
  				     echo "<a href=\"ratebuyer.php?item=" . $row['item_id'] . "&star=5\" ><img src=\"img/star.gif\" onmouseover=\"this.src='img/star2.gif'\" onmouseout=\"this.src='img/star.gif'\"  /></a>";
 					 	
-					 exit;
+					 /*exit;*/
 						}
 					else if($row['s_feedback']==True) {
 						echo "Feedback given";
@@ -318,39 +318,12 @@
 		 
 		 
             $msg = ''; 
-		$defaultq="SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
+		$defaultq="SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval, a.pageviews 
 		FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON 			a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
 			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
 		date_expires>NOW() AND a.auction_id IN (SELECT auction_id FROM t_auctions WHERE seller_id = " . $userid . ") ORDER BY(date_expires);";
 		$auctionq=$defaultq;
-/*		?>	
-      <div>
-<?php include 'searchbar.php';?>
-		 </div>	  
-         <?php
-			
-			if (isset($_POST['searchbtn'])  && !empty($_POST['search'])) {
-			$search = $_POST['search'];
-	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
-			FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
-			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
-			date_expires>NOW() AND a.auction_id IN (SELECT auction_id FROM t_auctions WHERE seller_id = " . $userid . ") AND (lower(description) like lower('%" . $search . "%') OR lower(item_name) like lower('%" . $search . "%')) ORDER BY(date_expires);";
-	        if(!mysqli_query($connection, $lookup) | mysqli_query($connection, $lookup)->num_rows < 1) {
-				echo "Sorry, there is nothing under that description";
-			}
-			else if (isset($_POST['category'])){
-			$cat = $_POST['category'];
-	        $lookup = "SELECT u.d_name, a.date_listed, a.date_expires, a.item_name, a.auction_id, c.cat_desc, a.description, h.currentval 
-			FROM (SELECT auctionid, max(`amount`) as currentval FROM `t_bids` GROUP BY auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
-			where a.seller_id =s.user_id AND s.user_id=u.user_id AND a.cat= c.cat_id AND
-			date_expires>NOW() AND a.auction_id IN (SELECT auction_id FROM t_auctions WHERE seller_id = " . $userid . ") AND (cat =" . $scat . ")) ORDER BY(date_expires);";			
-			}
-			{
-				$auctionq=$lookup;
-				
-			}
-            }
-			*/
+
             
       function drawAuctions($query)
 		{
@@ -371,7 +344,8 @@
 		"item_name" => "Name",
 		"cat_desc" => "Category",
 		"description" => "Description",
-		"currentval" => "Highest bid");		
+		"currentval" => "Highest bid",
+		"pageviews"=>"Page views");		
 		
 		while($row = mysqli_fetch_array($result,MYSQLI_ASSOC))
 		{
