@@ -24,7 +24,6 @@ FROM (SELECT (timediff(`date_expires`, NOW())/(60*60)) as timetogo, auction_id, 
 $endingsoonwatch="INSERT INTO t_emails (user_id, msgtype, auction_id, message, is_read) SELECT w.user_id, 1, t.auction_id, CONCAT(\"The auction on item \", t.item_name, \" is ending soon\"), 0
 FROM (SELECT (timediff(`date_expires`, NOW())/(60*60)) as timetogo, auction_id, date_expires, item_name FROM t_auctions) as t, t_watchlist as w WHERE w.auctionid=t.auction_id AND t.timetogo<30 and date_expires>NOW() AND CONCAT(w.user_id, \"_\", a.auction_id, \"_\", \"1\") NOT IN (SELECT CONCAT(e.user_id, \"_\" , e.auction_id, \"_\", e.msgtype) FROM t_emails as e);";
 
-echo $outbid;
 
 
  mysqli_query($connection, $notsoldupdate);
