@@ -138,6 +138,6 @@ and it is too late now to work on it anymore tonight*/
 		 
       </div> 
 	</div>
-	<div id=footer> Created by us bblah blah blah</div>
+	
   </body>
 </html>
