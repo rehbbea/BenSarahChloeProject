@@ -21,19 +21,32 @@
                && !empty($_POST['password'])) {
 			$user = $_POST['username'];
 			$password = $_POST['password'];
-	        $lookup = "SELECT * FROM t_users WHERE email = '" . $user . "' AND p_word = '" . $password . "'";
-	        if(!mysqli_query($connection, $lookup) | mysqli_query($connection, $lookup)->num_rows < 1) {
+	        $lookup = "SELECT * FROM t_users WHERE email = '" . $user . "'";
+                $result = mysqli_query($connection,$lookup);
+	        if(!$result | $result->num_rows < 1) {
 				unset($_SESSION["username"]);
 				unset($_SESSION["password"]);
 				$msg = 'Incorrect username or password';
 			}
 			else
 			{
+		             $row = mysqli_fetch_array($result);
+			     $pword = $row['p_word'];
+			     if($pword == $password || password_verify($password, $pword))
+			     {
+
 				$_SESSION['valid'] = true;
                   $_SESSION['timeout'] = time();
                   $_SESSION['username'] = $user;
                   
                      header('Refresh: 0; URL = browse.php');
+			     }
+			     else
+ 			     {
+	                        unset($_SESSION["username"]);
+                                unset($_SESSION["password"]);
+                                $msg = 'Incorrect username or password';
+			     }
 			}
 
             }

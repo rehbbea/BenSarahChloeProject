@@ -15,12 +15,11 @@ AND date_expires<NOW() AND a.reserve_price<currentval AND CONCAT(s.user_id, \"_\
 
 /*Tell bidders on an auction that it is ending soon. Message type 1*/
 $endingsoonbid="INSERT INTO t_emails (user_id, msgtype, auction_id, message, is_read) SELECT b.buyer_id, 1, t.auction_id, CONCAT(\"The auction on item \", t.item_name, \" is ending soon\"), 0
-FROM (SELECT (timediff(`date_expires`, NOW())/(60*60)) as timetogo, auction_id, date_expires, item_name FROM t_auctions) as t, t_bids as b WHERE b.auctionid=t.auction_id AND t.timetogo<30 and date_expires>NOW() AND CONCAT(b.buyer_id, \"_\", t.auction_id, \"_\", \"1\") NOT IN (SELECT CONCAT(e.user_id, \"_\" , e.auction_id, \"_\", e.msgtype) FROM t_emails as e);";
+FROM (SELECT timestampdiff(minute,now(),`date_expires`) as timetogo, auction_id, date_expires, item_name FROM t_auctions) as t,  (SELECT auctionid, buyer_id, max(amount) as max from t_bids group by auctionid, buyer_id) as b WHERE b.auctionid=t.auction_id and date_expires>NOW() AND t.timetogo<30 AND CONCAT(b.buyer_id, \"_\", t.auction_id, \"_\", \"1\") NOT IN (SELECT CONCAT(e.user_id, \"_\" , e.auction_id, \"_\", e.msgtype) FROM t_emails as e);";
 
 /*Tell watchers on an auction that it is ending soon Message type 1*/
 $endingsoonwatch="INSERT INTO t_emails (user_id, msgtype, auction_id, message, is_read) SELECT w.user_id, 1, t.auction_id, CONCAT(\"The auction on item \", t.item_name, \" is ending soon\"), 0
-FROM (SELECT (timediff(`date_expires`, NOW())/(60*60)) as timetogo, auction_id, date_expires, item_name FROM t_auctions) as t, t_watchlist as w WHERE w.auctionid=t.auction_id AND t.timetogo<30 and date_expires>NOW() AND CONCAT(w.user_id, \"_\", a.auction_id, \"_\", \"1\") NOT IN (SELECT CONCAT(e.user_id, \"_\" , e.auction_id, \"_\", e.msgtype) FROM t_emails as e);";
-
+FROM (SELECT timestampdiff(minute,now(),`date_expires`) as timetogo, auction_id, date_expires, item_name FROM t_auctions) as t, t_watchlist as w WHERE w.auctionid=t.auction_id and date_expires>NOW() AND t.timetogo<30 AND CONCAT(w.user_id, \"_\", a.auction_id, \"_\", \"1\") NOT IN (SELECT CONCAT(e.user_id, \"_\" , e.auction_id, \"_\", e.msgtype) FROM t_emails as e);";
 
 
  mysqli_query($connection, $notsoldupdate);
@@ -28,9 +27,8 @@ FROM (SELECT (timediff(`date_expires`, NOW())/(60*60)) as timetogo, auction_id, 
  mysqli_query($connection, $solditemupdate);
  mysqli_query($connection, $endingsoonbid);
  mysqli_query($connection, $endingsoonwatch);
- mysqli_query($connection, $outbid);	 
- 
- $sendemailquery = "SELECT message_id, msgtype, auction_id, message, is_read, email FROM t_emails LEFT JOIN t_users ON (t_emails.user_id = t_users.user_id) WHERE is_sent = 0 LIMIT 1";
+ /*mysqli_query($connection, $outbid);	*/ 
+$sendemailquery = "SELECT message_id, msgtype, auction_id, message, is_read, email FROM t_emails LEFT JOIN t_users ON (t_emails.user_id = t_users.user_id) WHERE is_sent = 0 LIMIT 1";
 $emailresult = mysqli_query($connection,$sendemailquery);
 if(!empty($emailresult))
 {
@@ -69,14 +67,11 @@ if(!empty($emailresult))
         $textline = $emailbody;
         fwrite($emailfile, $textline);
         fclose($emailfile);
-
         $command = "sendmail " . $to_address . " < email.txt";
         shell_exec($command);
-
        $emailsent = "UPDATE t_emails SET is_sent = 1 WHERE message_id = " . $message_id;
        mysqli_query($connection, $emailsent);
     }
 }
-
  
 ?>
