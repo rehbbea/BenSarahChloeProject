@@ -53,6 +53,28 @@
 				    echo "We couldn't add your bid, something went wrong";
 				}
 				else{
+					$outbidcheck = "SELECT user_id FROM t_watchlist WHERE user_id = " . $oldid . " AND auctionid = " . $item_id ;
+                                        $checkresult = mysqli_query($connection, $outbidcheck);
+                                        if(!empty($checkresult))
+                                        {
+                                            $checkrow = mysqli_fetch_array($checkresult);
+                                            if(!empty($checkrow))
+                                            {
+                                                $checkid = $checkrow['user_id'];
+                                                if(!empty($checkid))
+                                                {
+                                                /*Tell bidders they are outbid Message type 2*/
+                                                    $outbid = "INSERT INTO t_emails (user_id, msgtype, auction_id, message, is_read) SELECT b.buyer_id, 2, b.auctionid,
+CONCAT(\"You have been outbid on item \", a.item_name, \". Go to item to place another bid\"), 0
+FROM (SELECT max(amount) as highest, buyer_id, auctionid FROM t_bids Group by auctionid) as h, t_auctions as a, t_bids as b WHERE h.auctionid=b.auctionid
+AND h.auctionid=a.auction_id AND date_expires>NOW() and h.highest>b.amount  AND b.buyer_id = " . $checkid . " AND (h.buyer_id!=b.buyer_id) AND CONCAT(b.buyer_id, \"_\",
+b.auctionid, \"_\", \"2\") NOT IN (SELECT CONCAT(e.user_id, \"_\" , e.auction_id, \"_\", e.msgtype) FROM t_emails as e);";
+mysqli_query($connection, $outbid);
+                                                }
+                                            }
+                                       }
+
+
 				     $newurl = "viewitem.php?item=" . $item_id;
 					 header('Refresh: 1; URL = ' . $newurl);
 					 exit;
