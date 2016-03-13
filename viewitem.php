@@ -1,6 +1,9 @@
 <?php include 'database.php'; 
 ?>
 
+<?php include 'database.php'; 
+?>
+
 <?php
    session_start();
 ?>
@@ -53,7 +56,9 @@
 				    echo "We couldn't add your bid, something went wrong";
 				}
 				else{
-					$outbidcheck = "SELECT user_id FROM t_watchlist WHERE user_id = " . $oldid . " AND auctionid = " . $item_id ;
+	/*		I changed this because it was not working on wamp, but I notice that this does work on amazon web services so if you don't like to change it ok by me. How the query works is 2 sub queries, one calls the max bid by auction id and the other the max bid by auction and buyer id. If a buyer has a max amount less than the full amount for that auction, they are sent an email. But this works as a general stored procedure, not particular to a certain auction
+
+	$outbidcheck = "SELECT user_id FROM t_watchlist WHERE user_id = " . $oldid . " AND auctionid = " . $item_id ;
                                         $checkresult = mysqli_query($connection, $outbidcheck);
                                         if(!empty($checkresult))
                                         {
@@ -65,16 +70,14 @@
                                                 {
                                                 /*Tell bidders they are outbid Message type 2*/
                                                     $outbid = "INSERT INTO t_emails (user_id, msgtype, auction_id, message, is_read) SELECT b.buyer_id, 2, b.auctionid,
-CONCAT(\"You have been outbid on item \", a.item_name, \". Go to item to place another bid\"), 0
-FROM (SELECT max(amount) as highest, buyer_id, auctionid FROM t_bids Group by auctionid) as h, t_auctions as a, t_bids as b WHERE h.auctionid=b.auctionid
-AND h.auctionid=a.auction_id AND date_expires>NOW() and h.highest>b.amount  AND b.buyer_id = " . $checkid . " AND (h.buyer_id!=b.buyer_id) AND CONCAT(b.buyer_id, \"_\",
-b.auctionid, \"_\", \"2\") NOT IN (SELECT CONCAT(e.user_id, \"_\" , e.auction_id, \"_\", e.msgtype) FROM t_emails as e);";
+CONCAT(\"You have been outbid on item \", b.item_name, \". Go to item to place another bid\"), 0
+FROM (SELECT max(amount) as highest, buyer_id, auctionid FROM t_bids Group by auctionid) as h, (SELECT auctionid, buyer_id, max(amount) as amount, item_name, date_expires from t_bids as bid, t_auctions as a where a.auction_id=bid.auctionid group by auctionid, buyer_id) as b 
+WHERE h.auctionid=b.auctionid and h.highest>b.amount AND b.date_expires>NOW() AND CONCAT(b.buyer_id, \"_\",
+b.auctionid, \"_\", \"2\") NOT IN (SELECT CONCAT(e.user_id, \"_\" , e.auction_id, \"_\", e.msgtype) FROM t_emails as e);";;
 mysqli_query($connection, $outbid);
-                                                }
+                                     /*           }
                                             }
-                                       }
-
-
+                                       }*/
 				     $newurl = "viewitem.php?item=" . $item_id;
 					 header('Refresh: 1; URL = ' . $newurl);
 					 exit;
@@ -82,10 +85,9 @@ mysqli_query($connection, $outbid);
 	
 		}
 	
-			$query = "SELECT u.d_name as seller_name, u.user_id, a.date_listed, s.seller_rep, a.date_expires as expire_date, date_expires-NOW() as hours_to_expire, timediff(date_expires, NOW()) as hours_to_go, a.reserve_price, a.item_name, c.cat_desc, a.description, h.currentval, h.d_name as buyer, a.s_feedback, a.w_feedback, a.sent, a.img
+			$query = "SELECT u.d_name as seller_name, u.user_id, a.date_listed, s.seller_rep, a.date_expires as expire_date, date_expires-NOW() as hours_to_expire, timediff(date_expires, NOW()) as hours_to_go, a.reserve_price, a.item_name, c.cat_desc, a.description, h.currentval, h.d_name as buyer, a.s_feedback, a.w_feedback, a.sent, a.img, a.start_price
 			FROM (SELECT b.auctionid, amount as currentval, us.d_name FROM (SELECT auctionid, max(amount) as top from t_bids group by auctionid) as m, `t_bids` as b, t_users as us WHERE b.buyer_id=us.user_id AND m.top=b.amount AND m.auctionid=b.auctionid) as h RIGHT JOIN t_auctions as a ON a.auction_id=h.auctionid, t_sellers as s, t_users as u, t_cat as c 
 			WHERE auction_id = " . $item_id ." AND c.cat_id = a.cat AND a.seller_id=s.user_id AND s.user_id=u.user_id;";
-
 			$result = mysqli_query($connection,$query)
 		        or die('No such item.' . mysql_error());
 			$row = mysqli_fetch_array($result);
@@ -99,6 +101,7 @@ mysqli_query($connection, $outbid);
 			$currentval = $row['currentval'];
 			$expires = $row['expire_date'];
 			$reserve = $row['reserve_price'];
+			$start = $row['start_price'];
 			$hours = $row['hours_to_go'];
 			$winnersofar = $row['buyer'];
 			$sent = $row['sent']; 
@@ -200,7 +203,13 @@ mysqli_query($connection, $outbid);
 				 or die('Error making select bids' . mysql_error());
 		    echo "<table id='t01'><tr><td>Being sold by:</td><td> " . $seller . ". </td><td> with reputation " . $sellerrep . "/5 seller.</td></tr>";
 			echo "<tr><td>Ends in: </td><td>" . $hours . " </td><td>(At ". $expires .")</td></tr>";
-			echo "<tr><td>Highest Bid: </td><td> $" . $currprice  . " </td><td> Bidder: </td> <td>".$winnersofar."</td></tr> ";
+			if ($currprice>0){
+			echo "<tr><td>Highest Bid: </td><td> £" . $currprice  . " </td><td> Bidder: </td> <td>".$winnersofar."</td></tr> ";
+			} 
+			else{
+			echo "<tr><td>Start price: </td><td> £" . $start  . " </td><td> Bidder: </td> <td>".$winnersofar."</td></tr> ";
+			} 
+		
 			if($userbidresult->num_rows > 0)
 			{
 				$userbid = mysqli_fetch_array($userbidresult)['userbid'];
