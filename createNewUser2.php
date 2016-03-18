@@ -67,16 +67,15 @@
 					$user['lastName'] = $_POST['lastName'];
 					$user['email'] = $_POST['username'];
 					$user['d_name'] = $_POST['d_name'];
-					$user['password'] = $_POST['password'];
+					$user['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
 				return $user;
 			}
       function saveToDatabase($user)
 		{
 		include 'database.php'; 
 		 /*introduce password hashing here*/
- 		$query = "INSERT INTO t_users(first_name, last_name, p_word, d_name, email) ".
-				"VALUES ('${user['firstName']}', '${user['lastName']}', SHA('${user['password']}'),".
-				" '${user['d_name']}','${user['email']}');";
+		$query = "INSERT INTO t_users(first_name, last_name, p_word, d_name, email) ".
+                                "VALUES ('${user['firstName']}', '${user['lastName']}', '${user['password']}'," . " '${user['d_name']}','${user['email']}');";
         $result = mysqli_query($connection, $query)
           or die('Error making saveToDatabase query' . mysql_error());
         mysqli_close($connection);
