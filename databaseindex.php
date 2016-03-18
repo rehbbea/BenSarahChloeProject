@@ -32,7 +32,7 @@
                         {
                              $row = mysqli_fetch_array($result);
                              $pword = $row['p_word'];
-                             if($pword == $password || password_verify($password, $pword))
+                             if(password_verify($password, $pword))
                              {
 
                                 $_SESSION['valid'] = true;
